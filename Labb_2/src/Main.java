@@ -12,37 +12,42 @@ public class Main {
     }
 
 
-    // Calculates the Levenshtein distance dynamically 
+    //Calculates the Levenshtein distance dynamically 
     //Using a matrix structure 
     //String_1 reads from the left to right and string_2 vis versa
+
 
     public static int find_distance(String string_1, String string_2) {
         int m = string_1.length() + 1;
         int n = string_2.length() + 1;
         int[][] matrix = new int[m][n];
 
-        // Prefixes of str1 can be transformed into the empty string (0th prefix of str2)
-        // By removing all characters
+        //Transform elements in string_1 can be into an empty string 
         for (int i = 1; i < m; i++) {
             matrix[i][0] = i;
         }
 
-        // Empty str1 can be transformed into the prefixes of str2 by adding every character
+        // Transform elements in string_1 to elements in string_2
         for (int j = 1; j < n; j++) {
             matrix[0][j] = j;
         }
 
         // Fill remaining matrix with edit distances between the substrings in matrix[i][j]
         for (int i = 1; i < m; i++) {
+
             for (int j = 1; j < n; j++) {
+
                 int replace = 0;
-                if (string_1.charAt(i - 1) != string_2.charAt(j - 1)) { // If the current last letters are not the same
+
+                // If the last letter isnt the same
+                if (string_1.charAt(i - 1) != string_2.charAt(j - 1)) 
+                { 
                     replace = 1;
                 }
 
-                // This cell's edit distance is the minimum out of the three possible edits
+                //The edit capabilities for each cell in the matrix
                 matrix[i][j] = min(matrix[i - 1][j] + 1, // Deletion
-                        matrix[i][j - 1] + 1, // Insertion
+                        matrix[i][j - 1] + 1,            // Insertion
                         matrix[i - 1][j - 1] + replace); // Replacement
             }
         }
@@ -50,43 +55,52 @@ public class Main {
         return matrix[m - 1][n - 1];
     }
 
+
+    //Here is where the problems start 
+
+    //The scanner is supposed to get the word list from the arrey 
+    //then get the mispelled words and then 
+    //Calculate the distance between mispelled words and the rest of the words in the list
+    //It dont do that properly!
+
     public static void main(String[] args) {
         try (Scanner scan = new Scanner(System.in)) {
-            // Get word list
+
             ArrayList<String> wordList = new ArrayList<>();
             while (true) {
                 String word = scan.nextLine().trim();
 
-                if (word.equals("#")) { // End of word list
+                //When reaches end of the list
+                if (word.equals("#")) { 
                     break;
                 }
                 wordList.add(word);
             }
 
-            // Get misspelled words
+
+            //Scans through and clears previous matches for new distance 
             while (scan.hasNextLine()) {
-                String misspelledWord = scan.nextLine().trim();
-                int shortestDistance = Integer.MAX_VALUE;
-                ArrayList<String> matchingWords = new ArrayList<>(); // Words with lowest edit distance
+                String misspellings = scan.nextLine().trim();
+                int shortest_distance = Integer.MAX_VALUE;
+                ArrayList<String> matched_words = new ArrayList<>(); 
 
-                // Calculate edit distance between misspelled word and every word in the word list
-                // Save the ones with the lowest edit distance
                 for (String word : wordList) {
-                    int distance = find_distance(misspelledWord, word);
+                    int distance = find_distance(misspellings, word);
 
-                    if (distance <= shortestDistance) {
-                        // Clear previous matches words if new shortest edit distance is found
-                        if (distance < shortestDistance) {
-                            matchingWords.clear();
-                            shortestDistance = distance; // Update shortest distance
+                    if (distance <= shortest_distance) 
+                    {
+                        if (distance < shortest_distance) 
+                        {
+                            matched_words.clear();
+                            shortest_distance = distance; 
                         }
-                        matchingWords.add(word);
+                        matched_words.add(word);
                     }
                 }
 
                 
-                System.out.print(misspelledWord + " (" + shortestDistance + ")");
-                for (String word : matchingWords) {
+                System.out.print(misspellings + " (" + shortest_distance + ")");
+                for (String word : matched_words) {
                     System.out.print(" " + word);
                 }
                 System.out.println();
